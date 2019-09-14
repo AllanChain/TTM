@@ -47,12 +47,13 @@ class _MyHomePageState extends State<MyHomePage> {
   final _dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   var _tasks = new Map();
 
-  void getTime() async{
+  void getTime() async {
+    final now = DateTime.now();
     DateTime selectedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2018),
-      lastDate: DateTime(2030),
+      initialDate: now,
+      firstDate: DateTime(now.year - 2),
+      lastDate: DateTime(now.year + 9),
       builder: (BuildContext context, Widget child) {
         return Theme(
           data: ThemeData.light(),
@@ -60,12 +61,16 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       },
     );
-    TimeOfDay selectedTime = await showTimePicker(
-      initialTime: TimeOfDay.now(),
-      context: context,
-    );
-    print(selectedDate.toIso8601String());
-    print(selectedTime.format(context));
+    if (selectedDate != null) {
+      print(selectedDate.toIso8601String());
+      TimeOfDay selectedTime = await showTimePicker(
+        initialTime: TimeOfDay.now(),
+        context: context,
+      );
+      if (selectedTime != null) {
+        print(selectedTime.format(context));
+      }
+    }
   }
 
   @override
@@ -88,7 +93,10 @@ class _MyHomePageState extends State<MyHomePage> {
             title: Text(widget.title),
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: getTime,
+            onPressed: () {
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => AddTime()));
+            },
             tooltip: 'Increment',
             child: Icon(Icons.add),
           ),
@@ -144,5 +152,78 @@ class _MyHomePageState extends State<MyHomePage> {
                     ]))
               ])));
     });
+  }
+}
+
+class AddTime extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Add Time"),
+      ),
+      body: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(children: <Widget>[
+            TextField(
+              obscureText: true,
+              decoration: InputDecoration(
+                border: UnderlineInputBorder(),
+                labelText: 'Password',
+              ),
+            ),
+            Row(
+              children: <Widget>[
+                Icon(
+                  Icons.alarm,
+                  color: Colors.lime,
+                ),
+                FlatButton(
+                  textColor: Colors.indigo,
+                  child: const Text('ADD TIME'),
+                  onPressed: () {/* ... */},
+                ),
+              ],
+            ),
+            // Divider(
+            //   color: Colors.grey,
+            //   indent: 0,
+            //   height: 0,
+            // ),
+            Card(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  const ListTile(
+                    leading: Icon(Icons.access_time),
+                    title: Text('Thursday'),
+                    subtitle: Text('8:00 - 9:50'),
+                  ),
+                  ButtonTheme.bar(
+                    // make buttons use the appropriate styles for cards
+                    child: ButtonBar(
+                      children: <Widget>[
+                        FlatButton(
+                          child: const Text('Edit'),
+                          onPressed: () {/* ... */},
+                        ),
+                        FlatButton(
+                          child: const Text('Delete'),
+                          onPressed: () {/* ... */},
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+            RaisedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Go back!'),
+            ),
+          ])),
+    );
   }
 }
