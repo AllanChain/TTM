@@ -2,8 +2,10 @@ part of 'main.dart';
 
 class AddTimeState extends State<AddTime> {
   final List<List<String>> _times = [];
-  void getTime(BuildContext context) async {
+
+  void getTime(BuildContext context, int count) async {
     final now = DateTime.now();
+    final List<String> _result = [];
     print(_times);
     DateTime selectedDate = await showDatePicker(
       context: context,
@@ -17,22 +19,24 @@ class AddTimeState extends State<AddTime> {
         );
       },
     );
-    if (selectedDate != null) {
-      print(selectedDate.toIso8601String());
+    _result.add(
+        '${selectedDate.year}/${selectedDate.month + 1}/${selectedDate.day}');
+    if (selectedDate == null) {
+      return;
+    }
+    for (var i = 0; i < count; i++) {
       TimeOfDay selectedTime = await showTimePicker(
         initialTime: TimeOfDay.now(),
         context: context,
       );
-      if (selectedTime != null) {
-        print(selectedTime.format(context));
-        setState(() {
-          _times.add([
-            '${selectedDate.year}/${selectedDate.month + 1}/${selectedDate.day}',
-            '${selectedTime.hour}:${selectedTime.minute}'
-          ]);
-        });
+      if (selectedTime == null) {
+        return;
       }
+      _result.add('${selectedTime.hour}:${selectedTime.minute}');
     }
+    setState(() {
+      _times.add(_result);
+    });
   }
 
   @override
@@ -61,9 +65,16 @@ class AddTimeState extends State<AddTime> {
                   ),
                   FlatButton(
                     textColor: Colors.indigo,
+                    child: const Text('ADD DURATION'),
+                    onPressed: () {
+                      getTime(context, 2);
+                    },
+                  ),
+                  FlatButton(
+                    textColor: Colors.indigo,
                     child: const Text('ADD TIME'),
                     onPressed: () {
-                      getTime(context);
+                      getTime(context, 1);
                     },
                   ),
                 ],
@@ -89,7 +100,7 @@ class AddTimeState extends State<AddTime> {
                                 new ListTile(
                                   leading: Icon(Icons.access_time),
                                   title: Text(_times[index][0]),
-                                  subtitle: Text(_times[index][1]),
+                                  subtitle: Text(_times[index].length>2?'${_times[index][1]}-${_times[index][2]}':'${_times[index][1]}'),
                                 ),
                                 ButtonTheme.bar(
                                   // make buttons use the appropriate styles for cards
